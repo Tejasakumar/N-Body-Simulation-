@@ -4,11 +4,16 @@
 #include <device_launch_parameters.h>
 #include <GLFW/glfw3.h>
 #include<windows.h> 
+#include <vector>
+#include <random>
+
+using namespace std;
 
 struct Body {
     float3 position;
     float3 velocity;
     float mass;
+    GLfloat color[3];
 };
 
 #define G 6.67e-11
@@ -16,6 +21,7 @@ struct Body {
 const int width = 800;
 const int height = 600;
 const int NUMBODIES = 1000;
+
 
 int generateSeed() {
     return static_cast<int>(time(NULL));
@@ -25,12 +31,24 @@ __global__
 void noramlize(Body* arr,Body *dest) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
     int stride = blockDim.x * gridDim.x;
+    const float min_mass = 3.3011e23;
+    const float max_mass = 1.989e30;
+    const float min_normalized_mass = 0.005;
+    const float max_normalized_mass = 0.015;
 
     for (int i = index; i < NUMBODIES; i += stride) {
         // Normalize position coordinates to NDC range [-1, 1]
-        dest[i].position.x = arr[i].position.x / 1.0e11; // Divide by max value to get [-1, 1] range
-        dest[i].position.y = arr[i].position.y / 1.0e11;
-        dest[i].position.z = arr[i].position.z / 1.0e11;
+        dest[i].position.x =arr[i].position.x / 1.0e11; // Divide by max value to get [-1, 1] range
+        dest[i].position.y =arr[i].position.y / 1.0e11;
+        dest[i].position.z =arr[i].position.z / 1.0e11;
+        for (int j = 0; j < 3; ++j) {
+            dest[i].color[j] = arr[i].color[j];
+        }
+        float original_mass = arr[i].mass;
+        float normalized_mass = (original_mass - min_mass) / (max_mass - min_mass)
+            * (max_normalized_mass - min_normalized_mass) + min_normalized_mass;
+
+        dest[i].mass = normalized_mass;
     }
 }
 
@@ -38,6 +56,15 @@ __global__
 void initialize(Body* deviceBodies, int num_bodies, int seed) {
     int index = blockIdx.x * blockDim.x + threadIdx.x;
 
+
+    GLfloat col1[] = { 225.0f / 255.0f, 111.0f / 255.0f, 103.0f / 255.0f };
+    GLfloat col2[] = { 133.0f / 255.0f, 191.0f / 255.0f, 177.0f / 255.0f };
+    GLfloat col3[] = { 138.0f / 255.0f, 190.0f / 255.0f, 178.0f / 255.0f };
+    GLfloat col4[] = { 241.0f / 255.0f, 221.0f / 255.0f, 182.0f / 255.0f };
+
+    GLfloat* cols[] = { col1, col2, col3, col4 };
+
+    
     int stride = blockDim.x * gridDim.x;
     for (int i = index; i < num_bodies; i += stride) {
 
@@ -53,9 +80,23 @@ void initialize(Body* deviceBodies, int num_bodies, int seed) {
         deviceBodies[i].velocity.y = curand_uniform(&state) * (100000.0 - 15000.0) + 15000.0; // Range: 15,000 m/s to 100,000 m/s
         deviceBodies[i].velocity.z = curand_uniform(&state) * (100000.0 - 15000.0) + 15000.0; // Range: 15,000 m/s to 100,000 m/s
 
-
+        //deviceBodies[i].velocity.x = 0;
+        //deviceBodies[i].velocity.y = 0;
+        //deviceBodies[i].velocity.z = 0;
 
         deviceBodies[i].mass = curand_uniform(&state) * (1.989e30 - 3.3011e23) + 3.3011e23;
+        //float log_normal_value = curand_log_normal(&state, 1.0f, 1.0f);
+        //float mass = expf(log_normal_value);
+        //float gaussian_value = curand_normal(&state);
+        //float mass = gaussian_value * (1.989e30 - 3.3011e23) + 3.3011e23;
+        //deviceBodies[i].mass = mass;
+
+        int colIndex = i % (sizeof(cols) / sizeof(cols[0]));
+        for (int j = 0; j < 3; ++j) {
+            deviceBodies[i].color[j] = cols[colIndex][j];
+
+        }
+        //printf("%f %f %f\n", deviceBodies[i].color[0], deviceBodies[i].color[1], deviceBodies[i].color[2]);
 
 
     }
@@ -89,8 +130,8 @@ __global__ void computeAccn(Body* bodies, int num_bodies, float3* accelerations,
                 float force_x = ((G * bodies[i].mass * bodies[j].mass) / dist_cubed) * dist_x;
                 //printf("Distance %f\n", dist_x);
                 //printf("Force %f\n",force_x);
-                float force_y = G * bodies[i].mass * bodies[j].mass / dist_cubed * dist_vector.y;
-                float force_z = G * bodies[i].mass * bodies[j].mass / dist_cubed * dist_vector.z;
+                float force_y = G * bodies[i].mass * bodies[j].mass / dist_cubed * dist_y;
+                float force_z = G * bodies[i].mass * bodies[j].mass / dist_cubed * dist_z;
 
                 totalforce.x += force_x;
                 totalforce.y += force_y;
@@ -125,7 +166,7 @@ __global__ void computeAccn(Body* bodies, int num_bodies, float3* accelerations,
 
 
 // Function to display OpenGL scene
-void display(GLFWwindow* window, Body* points, int numPoints) {
+void displayy(GLFWwindow* window, Body* points, int numPoints) {
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(1.0, 1.0, 1.0); // White color
 
@@ -139,10 +180,46 @@ void display(GLFWwindow* window, Body* points, int numPoints) {
     glfwSwapBuffers(window);
 }
 
+// Function to display OpenGL scene
+void display(GLFWwindow* window, Body* points, int numPoints) {
+
+    
+
+    glClear(GL_COLOR_BUFFER_BIT);
+    //GLfloat color[] = { 1.0f, 1.0f, 1.0f }; // Array representing white color (RGB: 1.0, 1.0, 1.0)
+    //glColor3fv(color); // Pass the array to glColor3fv
+
+
+    // Draw circles
+    float radius = 0.005f; // Set radius for circles
+    for (int i = 0; i < numPoints; i++) {
+
+        GLfloat color[] = { points[i].color[0], points[i].color[1], points[i].color[2] };
+        glColor3fv(color);
+        //cout << points[i].color[0] << " " << points[i].color[1] << " " << points[i].color[2] << endl;
+
+        radius = points[i].mass;
+        
+        glBegin(GL_TRIANGLE_FAN);
+        glVertex2f(points[i].position.x, points[i].position.y); // Center of circle
+        for (int j = 0; j <= 360; j += 10) { // Draw circle using triangle fan
+            float angle = j * 3.14159f / 180.0f;
+            float x = points[i].position.x + radius * cos(angle);
+            float y = points[i].position.y + radius * sin(angle);
+            glVertex2f(x, y);
+        }
+        glEnd();
+    }
+
+    glfwSwapBuffers(window);
+}
+
+
 int main() {
     // Initialize GLFW
+    
     if (!glfwInit()) {
-        std::cerr << "Failed to initialize GLFW" << std::endl;
+        cerr << "Failed to initialize GLFW" << endl;
         return -1;
     }
 
@@ -178,13 +255,18 @@ int main() {
     // Copy points from device to host
     cudaMemcpy(points, deviceBodies, sizeof(float) * NUMBODIES * 2, cudaMemcpyDeviceToHost);
 
+    
+
+
     Body* normalized_bodies = (Body*)malloc(sizeof(Body) * NUMBODIES);
     Body* d_norm_bodies;
     cudaMalloc((void**)&d_norm_bodies, NUMBODIES * sizeof(Body));
 
-    noramlize << <blocks_per_grid, threads_per_block >> > (deviceBodies,d_norm_bodies);
+    noramlize <<<blocks_per_grid, threads_per_block >> > (deviceBodies,d_norm_bodies);
 
     cudaMemcpy(normalized_bodies, d_norm_bodies, sizeof(float) * NUMBODIES * 2, cudaMemcpyDeviceToHost);
+
+    cout << normalized_bodies[0].color[0] << " " << normalized_bodies[0].color[1] << " " << normalized_bodies[0].color[2] << endl;
 
 
     float3* deviceAccelerations;
@@ -195,11 +277,11 @@ int main() {
     cudaMalloc((void**)&deviceAccelerations, NUMBODIES * sizeof(float3));
 
 
-    float dt = 1000;
+    float dt = 500;
     int frame_cnt = 0;
 
     // Loop until the user closes the window
-    while (!glfwWindowShouldClose(window)) {
+    while (!glfwWindowShouldClose(window) && frame_cnt!=1000) {
         // Render here
         display(window, normalized_bodies, NUMBODIES);
         computeAccn <<< blocks_per_grid, threads_per_block >>> (deviceBodies, NUMBODIES, deviceAccelerations, dt);
@@ -213,7 +295,7 @@ int main() {
 
         //Sleep(500);
         // Poll for and process events
-        std::cout << "Frame no= " << frame_cnt++ << std:: endl;
+        cout << "Frame no= " << frame_cnt++ <<  endl;
         glfwPollEvents();
         
     }

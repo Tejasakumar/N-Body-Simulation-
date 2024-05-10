@@ -230,6 +230,7 @@ C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.6\include\texture_types.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.6\include\vector_functions.h
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.6\include\vector_functions.hpp
 C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.6\include\vector_types.h
+E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\algorithm
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\atomic
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\cctype
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\cerrno
@@ -262,6 +263,7 @@ E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\limits.h
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\memory
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\new
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\ostream
+E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\random
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\sal.h
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\stdarg.h
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\stdexcept
@@ -279,7 +281,9 @@ E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\vcruntime_new.h
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\vcruntime_new_debug.h
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\vcruntime_string.h
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\vcruntime_typeinfo.h
+E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\vector
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\xatomic.h
+E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\xbit_ops.h
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\xcall_once.h
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\xerrc.h
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\xfacet
@@ -296,6 +300,8 @@ E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\xtr1common
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\xutility
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\yvals.h
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\yvals_core.h
+E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\__msvc_bit_utils.hpp
+E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\__msvc_int128.hpp
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\__msvc_iter_core.hpp
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\__msvc_sanitizer_annotate_container.hpp
 E:\SOFTWARES\VS\VC\Tools\MSVC\14.39.33519\include\__msvc_system_error_abi.hpp
